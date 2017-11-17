@@ -1,5 +1,7 @@
 package cn.neil.kafkaMQ.producer.sync;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -13,9 +15,11 @@ import kafka.producer.ProducerConfig;
 
 public class SyncProduce {
 	public static void main(String[] args) throws Exception {
-        dmaccessuvlast30min();
+        dmaccessuvlast30minWaterMark();
 //        yxAccumulatedInMin();
 //        dmaccessuvlast30minWaterMark();
+
+
     }
 
     /**
@@ -42,26 +46,43 @@ public class SyncProduce {
     }
 
     private static void dmaccessuvlast30minWaterMark() throws Exception {
+        //分钟 * 每分钟次数
+        int cnt = 6 * 5;
+        //每次发送间隔
+        int interval = 10000;
+
+        List<Long> tsList = new ArrayList<>(cnt);
+        Long ts = System.currentTimeMillis() - cnt * interval;
+
+        for(int i=0; i< cnt; i++){
+            tsList.add(ts +  i * interval);
+        }
+        Collections.shuffle(tsList);
+
+        //发送消息
         KafkaMsgSender kms = new KafkaMsgSender();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         String uuid = "32372b0c167b26c3cfd6f185d9e5f9af";
         String s1 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\"},{\"field_name\":\"platform\",\"field_value\":\"ios\"},{\"field_name\":\"wzpData\",\"field_value\":\"{\\\"uuid\\\":\\\"32372b0c167b26c3cfd6f185d9e5f9af1\\\",\\\"frequency\\\":\\\"10\\\",\\\"ch_Id\\\":\\\"AppStore\\\",\\\"net_type\\\":\\\"wifi\\\",\\\"events\\\":[{\\\"timestamp_a\\\":1508601577953,\\\"page_name\\\":\\\"\\\",\\\"sequence\\\":1386,\\\"event_name\\\":\\\"click_mainpagetab\\\",\\\"event_action\\\":\\\"click\\\",\\\"parameters\\\":{\\\"sequen\\\":4,\\\"userType\\\":\\\"0\\\"},\\\"log_source\\\":\\\"app\\\",\\\"frompage\\\":\\\"yanxuan:\\\\/\\\\/homepage_newarrival\\\",\\\"locpage\\\":\\\"yanxuan:\\\\/\\\\/homepage_newarrival\\\"}],\\\"idfa\\\":\\\"8CE99531-34D8-445D-A860-7301AE849BF6\\\",\\\"YXS_v\\\":\\\"1\\\",\\\"app_v\\\":\\\"YANXUAN3.4.0\\\",\\\"OS_V\\\":\\\"ios11.0\\\",\\\"abtest_info\\\":\\\"\\\",\\\"model_Id\\\":\\\"iPhone 6S\\\",\\\"resolution\\\":\\\"375*667\\\",\\\"account\\\":\\\"m13348937348@163.com\\\",\\\"timestamp_s\\\":1508601599937}\"},{\"field_name\":\"ts\",\"field_value\":\"";
-        String s2 = String.valueOf(System.currentTimeMillis());
+        String s2;
         String s3 = "\"},{\"field_name\":\"secondCateId\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"\\\"";
         String s4 = uuid;
         String s5 = "\\\"\"},{\"field_name\":\"itemId\"},{\"field_name\":\"date\",\"field_value\":\"2017-10-31 00:00:00,062\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2017-10-31\"}]}";
-        String msg = new StringBuilder(s1).append(s2).append(s3).append(s4).append(s5).toString();
+
+        int times = 0;
+        for (Long tmpTs: tsList
+             ) {
+            String msg = new StringBuilder(s1).append(tmpTs.toString()).append(s3).append(s4).append("-").append(times ++).append(s5).toString();
+            kms.sendKafkaMsg(msg);
+            System.out.println("事件时间:" + df.format(new Date(tmpTs)) + "  于:" + df.format(new Date()));
+            Thread.sleep(10000);
+        }
 
 
-        Thread.sleep(15000);
-        kms.sendKafkaMsg(msg);
-        msg = new StringBuilder(s1).append(String.valueOf(System.currentTimeMillis())).append(s3).append(s4).append("1").append(s5).toString();
-        kms.sendKafkaMsg(msg);
 
-        Thread.sleep(15000);
-        kms.sendKafkaMsg(msg);
-        msg = new StringBuilder(s1).append(String.valueOf(System.currentTimeMillis())).append(s3).append(s4).append("2").append(s5).toString();
-        System.out.println("end");
+
+
 
     }
 
@@ -91,8 +112,14 @@ public class SyncProduce {
         Long period = 60L;
         ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(4);
         scheduledExecutorService.scheduleAtFixedRate(task1, 0*initalDelay, period, TimeUnit.SECONDS);
+        //测试延时发送超时 延时超过2分钟
+        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts1, "t1-001-" + uuid), 55 , TimeUnit.SECONDS);
+        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts1 + 3100L, "t1002-" + uuid), 31 , TimeUnit.SECONDS);
+        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts1, "t1-003-" + uuid), 185 , TimeUnit.SECONDS);
 
-        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts2, "tt-" + uuid), 70 , TimeUnit.SECONDS);
+//        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts2, "tt1-" + uuid), 116 , TimeUnit.SECONDS);
+//        scheduledExecutorService.schedule(new MyTimerTask(kms,2, ts2, "tt2-" + uuid), 117 , TimeUnit.SECONDS);
+
         scheduledExecutorService.scheduleAtFixedRate(task2, 1*initalDelay, period, TimeUnit.SECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(task3, 2*initalDelay, period, TimeUnit.SECONDS);
