@@ -29,13 +29,35 @@ public class MyTimerTask extends TimerTask {
         }
 
         for (int i = 0; i < this.times; i++) {
-            String s1 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\"},{\"field_name\":\"platform\",\"field_value\":\"ios\"},{\"field_name\":\"wzpData\",\"field_value\":\"{\\\"uuid\\\":\\\"32372b0c167b26c3cfd6f185d9e5f9af1\\\",\\\"frequency\\\":\\\"10\\\",\\\"ch_Id\\\":\\\"AppStore\\\",\\\"net_type\\\":\\\"wifi\\\",\\\"events\\\":[{\\\"timestamp_a\\\":1508601577953,\\\"page_name\\\":\\\"\\\",\\\"sequence\\\":1386,\\\"event_name\\\":\\\"click_mainpagetab\\\",\\\"event_action\\\":\\\"click\\\",\\\"parameters\\\":{\\\"sequen\\\":4,\\\"userType\\\":\\\"0\\\"},\\\"log_source\\\":\\\"app\\\",\\\"frompage\\\":\\\"yanxuan:\\\\/\\\\/homepage_newarrival\\\",\\\"locpage\\\":\\\"yanxuan:\\\\/\\\\/homepage_newarrival\\\"}],\\\"idfa\\\":\\\"8CE99531-34D8-445D-A860-7301AE849BF6\\\",\\\"YXS_v\\\":\\\"1\\\",\\\"app_v\\\":\\\"YANXUAN3.4.0\\\",\\\"OS_V\\\":\\\"ios11.0\\\",\\\"abtest_info\\\":\\\"\\\",\\\"model_Id\\\":\\\"iPhone 6S\\\",\\\"resolution\\\":\\\"375*667\\\",\\\"account\\\":\\\"m13348937348@163.com\\\",\\\"timestamp_s\\\":1508601599937}\"},{\"field_name\":\"ts\",\"field_value\":\"";
-            String s2 = String.valueOf((ts + cnt));
-            String s3 = "\"},{\"field_name\":\"secondCateId\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"\\\"";
-            String s4 = uuid + cnt;
-            String s5 = "\\\"\"},{\"field_name\":\"itemId\"},{\"field_name\":\"date\",\"field_value\":\"2017-10-31 00:00:00,062\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2017-10-31\"}]}";
-            String msg = new StringBuilder(s1).append(s2).append(s3).append(s4).append(s5).toString();
-            System.out.println("事件时间:" + new Date(ts + cnt) + "  uuid:" + (uuid + cnt) + "  序号:" + cnt + " Thread:" + Thread.currentThread().getName());
+            long ts = System.currentTimeMillis();
+            String s1 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\",\"field_value\":\"1001001\"},{\"field_name\":\"platform\",\"field_value\":\"ios\"},{\"field_name\":\"wzpData\"},{\"field_name\":\"ts\",\"field_value\":\"" +
+                     + ts +
+                    "\"},{\"field_name\":\"secondCateId\",\"field_value\":\"2002001\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"3f43fe88aebff189c62b75a9c3246c019\"},{\"field_name\":\"itemId\",\"field_value\":\"800101\"},{\"field_name\":\"date\",\"field_value\":\"2018-01-03 00:00:00,976\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2018-01-03\"}]}";
+
+            String s2 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\",\"field_value\":\"1001001\"},{\"field_name\":\"platform\",\"field_value\":\"android\"},{\"field_name\":\"wzpData\"},{\"field_name\":\"ts\",\"field_value\":\"" +
+                    + ts +
+                    "\"},{\"field_name\":\"secondCateId\",\"field_value\":\"2002001\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"3f43fe88aebff189c62b75a9c3246c019\"},{\"field_name\":\"itemId\",\"field_value\":\"800101\"},{\"field_name\":\"date\",\"field_value\":\"2018-01-03 00:00:00,976\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2018-01-03\"}]}";
+
+            String s3 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\",\"field_value\":\"1001001\"},{\"field_name\":\"platform\",\"field_value\":\"web\"},{\"field_name\":\"wzpData\"},{\"field_name\":\"ts\",\"field_value\":\"" +
+                    + ts +
+                    "\"},{\"field_name\":\"secondCateId\",\"field_value\":\"2002001\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"3f43fe88aebff189c62b75a9c3246c019\"},{\"field_name\":\"itemId\",\"field_value\":\"800101\"},{\"field_name\":\"date\",\"field_value\":\"2018-01-03 00:00:00,976\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2018-01-03\"}]}";
+
+            String s4 = "{\"table_name\":\"dwd_access\",\"fields\":[{\"field_name\":\"firstCateId\",\"field_value\":\"1001001\"},{\"field_name\":\"platform\",\"field_value\":\"wap\"},{\"field_name\":\"wzpData\"},{\"field_name\":\"ts\",\"field_value\":\"" +
+                    + ts +
+                    "\"},{\"field_name\":\"secondCateId\",\"field_value\":\"2002001\"},{\"field_name\":\"isNewUUid\"},{\"field_name\":\"uuid\",\"field_value\":\"3f43fe88aebff189c62b75a9c3246c019\"},{\"field_name\":\"itemId\",\"field_value\":\"800101\"},{\"field_name\":\"date\",\"field_value\":\"2018-01-03 00:00:00,976\"},{\"field_name\":\"url\"},{\"field_name\":\"ds\",\"field_value\":\"2018-01-03\"}]}";
+
+            String msg = s1;
+            if(uuid.startsWith("t1-")){
+                msg = s1;
+            } else if(uuid.startsWith("t2-")){
+                msg = s2;
+            } else if(uuid.startsWith("t3-")){
+                msg = s3;
+            } else if(uuid.startsWith("t4-")){
+                msg = s4;
+            }
+
+            System.out.println("事件时间:" + new Date(ts) + "  uuid:" + (uuid + cnt) + "  序号:" + cnt + " Thread:" + Thread.currentThread().getName());
 
             kmc.sendKafkaMsg(msg);
             cnt ++;
